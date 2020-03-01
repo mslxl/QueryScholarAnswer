@@ -1,0 +1,2 @@
+# QueryScholarAnswer
+跳过做题直接查看小七学伴作业的答案
