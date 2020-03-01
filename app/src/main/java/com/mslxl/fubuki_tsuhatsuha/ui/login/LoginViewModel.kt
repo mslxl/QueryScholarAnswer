@@ -30,7 +30,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _allowStart = MutableLiveData<AllowStartResult>()
     val allowStart: LiveData<AllowStartResult> = _allowStart
 
-    val loggedInUser: LiveData<User> = loginRepository.readLoggedInUserInDatabase()
+    val loggedInUser: LiveData<User?>? = loginRepository.readLoggedInUserInDatabase()
 
     fun isAllowStart() {
         thread(name = "allow start") {

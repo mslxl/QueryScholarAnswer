@@ -19,7 +19,7 @@ class LoginRepository(
     }
 
     // in-memory cache of the loggedInUser object
-    var user: LiveData<User>
+    var user: LiveData<User?>
         private set
 
     val isLoggedIn: Boolean
@@ -28,7 +28,7 @@ class LoginRepository(
     init {
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
-        user = userDao.loadLiveData(1)
+        user = userDao.loadLiveData(1)!!
         Log.v("load user", user.value?.token ?: "No login user")
     }
 
@@ -47,7 +47,7 @@ class LoginRepository(
     }
 
 
-    fun readLoggedInUserInDatabase(): LiveData<User> {
+    fun readLoggedInUserInDatabase(): LiveData<User?>? {
         return userDao.loadLiveData(1)
     }
 

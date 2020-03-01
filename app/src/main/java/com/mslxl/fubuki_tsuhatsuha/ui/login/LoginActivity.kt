@@ -126,8 +126,10 @@ class LoginActivity : AppCompatActivity() {
                 loginViewModel.login(phone.text.toString(), password.text.toString())
             }
         }
-        loginViewModel.loggedInUser.observe(this) { user ->
-            updateUiWithUser(LoggedInUserView(user.token))
+        loginViewModel.loggedInUser?.observe(this) { user ->
+            user?.let {
+                updateUiWithUser(LoggedInUserView(it.token))
+            }
         }
 
         loginViewModel.allowStart.observe(this) {
