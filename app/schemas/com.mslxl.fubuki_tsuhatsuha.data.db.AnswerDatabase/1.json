@@ -1,0 +1,46 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "07b34d466883e93bfc114c8eb660d420",
+    "entities": [
+      {
+        "tableName": "Answer",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`guid` TEXT NOT NULL, `choice` TEXT NOT NULL, `subAnswer` TEXT NOT NULL, PRIMARY KEY(`guid`))",
+        "fields": [
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "choice",
+            "columnName": "choice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subAnswer",
+            "columnName": "subAnswer",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "guid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '07b34d466883e93bfc114c8eb660d420')"
+    ]
+  }
+}
