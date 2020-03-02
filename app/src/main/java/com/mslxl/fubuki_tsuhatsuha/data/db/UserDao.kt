@@ -14,7 +14,7 @@ interface UserDao {
     fun save(user: User)
 
     @Query("SELECT * FROM user WHERE id = :userId")
-    fun loadLiveData(userId: Int): LiveData<User?>?
+    fun loadLiveData(userId: Int): LiveData<User?>
 
     @Query("SELECT * FROM user WHERE id = :userId")
     fun load(userId: Int): User?

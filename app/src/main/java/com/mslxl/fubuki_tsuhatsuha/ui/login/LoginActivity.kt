@@ -83,11 +83,11 @@ class LoginActivity : AppCompatActivity() {
         })
 
         loginViewModel.smsResult.observe(this, Observer {
-            if (it.successToken != null) {
-            } else {
-                Toast.makeText(applicationContext, "${it.error}:${it.errorMsg}", Toast.LENGTH_LONG)
+            it.onError { status, message ->
+                Toast.makeText(applicationContext, "$status:${message}", Toast.LENGTH_LONG)
                     .show()
             }
+
         })
 
         phone.apply {
@@ -126,7 +126,7 @@ class LoginActivity : AppCompatActivity() {
                 loginViewModel.login(phone.text.toString(), password.text.toString())
             }
         }
-        loginViewModel.loggedInUser?.observe(this) { user ->
+        loginViewModel.loggedInUser.observe(this) { user ->
             user?.let {
                 updateUiWithUser(LoggedInUserView(it.token))
             }

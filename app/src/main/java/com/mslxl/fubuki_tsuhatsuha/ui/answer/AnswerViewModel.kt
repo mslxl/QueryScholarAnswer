@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.mslxl.fubuki_tsuhatsuha.data.AnswerRepository
+import com.mslxl.fubuki_tsuhatsuha.data.Result
+import com.mslxl.fubuki_tsuhatsuha.data.model.Answer
 import kotlin.concurrent.thread
 
 class AnswerViewModel(
@@ -15,8 +17,8 @@ class AnswerViewModel(
     val guid: String = savedStateHandle["guid"]!!
     val ru: String = savedStateHandle["ru"]!!
 
-    private val _requestAnswerResult = MutableLiveData<RequestAnswerResult>()
-    val requestAnswerResult: LiveData<RequestAnswerResult> = _requestAnswerResult
+    private val _requestAnswerResult = MutableLiveData<Result<Answer>>()
+    val requestAnswerResult: LiveData<Result<Answer>> = _requestAnswerResult
 
     fun requestAnswer() {
         thread(name = "Request answer:${guid}") {

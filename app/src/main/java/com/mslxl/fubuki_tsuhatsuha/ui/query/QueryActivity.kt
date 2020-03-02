@@ -46,8 +46,7 @@ class QueryActivity : AppCompatActivity(), WorkAdapter.OnItemClick {
         }
 
         queryViewModel.requestUserInfoResult.observe(this) {
-            if (it.success != null) {
-                val model = it.success
+            it.onSuccess { model ->
                 val infoTxt = """
                     TOKEN: ${queryViewModel.token}
                     姓名: ${model.username} (${model.ru})
@@ -55,21 +54,23 @@ class QueryActivity : AppCompatActivity(), WorkAdapter.OnItemClick {
                     班级: ${model.className} (GradeCode:${model.gradeCode};ClassCode:${model.classCode})
                 """.trimIndent()
                 info.text = infoTxt
-            } else {
-                exitDueToError(it.errorCode!!, it.msg!!)
             }
-
+            it.onError { status, message ->
+                exitDueToError(status, message)
+            }
             queryViewModel.requestWork()
+
+
         }
         queryViewModel.requestWorkListResult.observe(this) {
-            if (it.success != null) {
-                val model = it.success
+            it.onSuccess { model ->
                 list.adapter = WorkAdapter(model.works).apply {
                     onItemClickListener = this@QueryActivity
                     notifyDataSetChanged()
                 }
-            } else {
-                exitDueToError(it.code!!, it.msg!!)
+            }
+            it.onError { status, message ->
+                exitDueToError(status, message)
             }
         }
 
@@ -86,11 +87,14 @@ class QueryActivity : AppCompatActivity(), WorkAdapter.OnItemClick {
     override fun onItemClick(model: WorkItem) {
         Log.d("click", "Query Answer :$model")
         Intent(this, AnswerActivity::class.java).apply {
-            val userInfo = queryViewModel.requestUserInfoResult.value!!.success!!
-            putExtra("ru", userInfo.ru)
-            putExtra("token", queryViewModel.token)
-            putExtra("guid", model.homeWorkGuid)
-            putExtra("title", model.name)
+            queryViewModel.requestUserInfoResult.value!!.onSuccess { userInfo ->
+                putExtra("ru", userInfo.ru)
+                putExtra("token", queryViewModel.token)
+                putExtra("guid", model.homeWorkGuid)
+                putExtra("title", model.name)
+            }.onError { status, message ->
+                exitDueToError(status, message)
+            }
         }.let {
             this.startActivity(it)
         }

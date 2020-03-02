@@ -24,13 +24,13 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     }
     val smsCountdownState: LiveData<Long> = _smsCountdown
 
-    private val _smsResult = MutableLiveData<LoginSmsResult>()
-    val smsResult: LiveData<LoginSmsResult> = _smsResult
+    private val _smsResult = MutableLiveData<Result<String>>()
+    val smsResult: LiveData<Result<String>> = _smsResult
 
     private val _allowStart = MutableLiveData<AllowStartResult>()
     val allowStart: LiveData<AllowStartResult> = _allowStart
 
-    val loggedInUser: LiveData<User?>? = loginRepository.readLoggedInUserInDatabase()
+    val loggedInUser: LiveData<User?> = loginRepository.readLoggedInUserInDatabase()
 
     fun isAllowStart() {
         thread(name = "allow start") {
@@ -58,17 +58,14 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
             timer.start()
 
             val result = loginRepository.sendSms(phone)
-            if (result is Result.Success) {
-                _smsResult.postValue(LoginSmsResult(successToken = result.data))
-            } else if (result is Result.Error) {
-                _smsResult.postValue(LoginSmsResult(errorMsg = result.exception.message))
-            }
+            _smsResult.postValue(result)
         }
     }
 
     fun login(phone: String, verifyCode: String) {
         // can be launched in a separate asynchronous job
-        smsResult.value?.successToken?.let { token ->
+
+        smsResult.value?.onSuccess { token ->
             thread(name = "login") {
                 val result = loginRepository.login(phone, token, verifyCode)
 
@@ -79,6 +76,8 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                 }
             }
         }
+
+
     }
 
     fun loginDataChanged(username: String, password: String) {

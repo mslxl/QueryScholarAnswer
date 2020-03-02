@@ -35,8 +35,7 @@ class AnswerActivity : AppCompatActivity() {
 
 
         answerViewModel.requestAnswerResult.observe(this) { it ->
-            if (it.success != null) {
-                val answer = it.success
+            it.onSuccess { answer ->
                 val data = answer.choice
                     .toMutableList<Any>()
                     .apply {
@@ -45,9 +44,11 @@ class AnswerActivity : AppCompatActivity() {
                 list.adapter = AnswerAdapter(data).apply {
                     notifyDataSetChanged()
                 }
-            } else {
-                exitDueToError(it.status!!, it.msg!!)
             }
+            it.onError { status, message ->
+                exitDueToError(status, message)
+            }
+
         }
         this.title = intent?.extras?.getString("title")
 
