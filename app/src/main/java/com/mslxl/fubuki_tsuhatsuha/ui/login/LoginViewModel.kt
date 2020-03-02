@@ -24,6 +24,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     }
     val smsCountdownState: LiveData<Long> = _smsCountdown
 
+    // Token
     private val _smsResult = MutableLiveData<Result<String>>()
     val smsResult: LiveData<Result<String>> = _smsResult
 
@@ -31,6 +32,8 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     val allowStart: LiveData<AllowStartResult> = _allowStart
 
     val loggedInUser: LiveData<User?> = loginRepository.readLoggedInUserInDatabase()
+
+    var usePasswordLogin: Boolean = false
 
     fun isAllowStart() {
         thread(name = "allow start") {
@@ -65,9 +68,18 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     fun login(phone: String, verifyCode: String) {
         // can be launched in a separate asynchronous job
 
-        smsResult.value?.onSuccess { token ->
             thread(name = "login") {
-                val result = loginRepository.login(phone, token, verifyCode)
+                val result = if (usePasswordLogin) {
+                    loginRepository.login(phone, verifyCode)
+                } else {
+                    smsResult.value?.let {
+                        return@let if (it is Result.Success) {
+                            loginRepository.login(phone, it.data, verifyCode)
+                        } else {
+                            Result.Error(-1, "")
+                        }
+                    }
+                }
 
                 if (result is Result.Success) {
                     _loginResult.postValue(LoginResult(success = LoggedInUserView(result.data.token)))
@@ -75,22 +87,17 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                     _loginResult.postValue(LoginResult(error = R.string.login_failed))
                 }
             }
-        }
 
 
     }
 
-    fun loginDataChanged(username: String, password: String) {
+    fun loginDataChanged(username: String) {
         if (!isPhoneValid(username)) {
             _loginForm.value = LoginFormState(usernameError = R.string.invalid_username)
         } else {
-            if (!isPasswordValid(password)) {
-                _loginForm.value =
-                    LoginFormState(isPhoneValid = true, passwordError = R.string.invalid_password)
-            } else {
-                _loginForm.value = LoginFormState(isDataValid = true, isPhoneValid = true)
-            }
+            _loginForm.value = LoginFormState(isPhoneValid = true, isDataValid = true)
         }
+
     }
 
     // A placeholder phone validation check
@@ -98,9 +105,5 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         return phone.length == 11 && phone.toLongOrNull() != null
     }
 
-    // A placeholder password validation check
-    private fun isPasswordValid(password: String): Boolean {
-        return password.length >= 4
-    }
 
 }

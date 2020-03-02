@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -37,10 +35,21 @@ class LoginActivity : AppCompatActivity() {
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
         val sms = findViewById<Button>(R.id.sendSMS)
-
+        val usePwd = findViewById<CheckBox>(R.id.use_password)
         val about = findViewById<Button>(R.id.about)
         about.setOnClickListener {
             AboutDialog().show(this)
+        }
+
+        usePwd.setOnClickListener {
+            loginViewModel.usePasswordLogin = usePwd.isChecked
+            if (usePwd.isChecked) {
+                sms.visibility = View.INVISIBLE
+                password.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+            } else {
+                sms.visibility = View.VISIBLE
+                password.inputType = InputType.TYPE_NUMBER_VARIATION_NORMAL
+            }
         }
 
         loginViewModel.smsCountdownState.observe(this@LoginActivity, Observer {
@@ -64,9 +73,6 @@ class LoginActivity : AppCompatActivity() {
             login.isEnabled = loginState.isDataValid
             if (loginState.usernameError != null) {
                 phone.error = getString(loginState.usernameError)
-            }
-            if (loginState.passwordError != null) {
-                password.error = getString(loginState.passwordError)
             }
 
         })
@@ -93,8 +99,7 @@ class LoginActivity : AppCompatActivity() {
         phone.apply {
             afterTextChanged {
                 loginViewModel.loginDataChanged(
-                    phone.text.toString(),
-                    password.text.toString()
+                    phone.text.toString()
                 )
             }
             sms.setOnClickListener {
@@ -105,8 +110,7 @@ class LoginActivity : AppCompatActivity() {
         password.apply {
             afterTextChanged {
                 loginViewModel.loginDataChanged(
-                    phone.text.toString(),
-                    password.text.toString()
+                    phone.text.toString()
                 )
             }
 

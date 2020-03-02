@@ -138,7 +138,7 @@ internal object WebDataSource {
 
     fun getAnswer(ru: String, workGuid: String, token: String): Result<Answer> {
         return buildOkHttp<Result<Answer>> {
-            url("/api/Student/GetWorkAnswer?rucode=$ru&workInfoGuid=$workGuid".api())
+            url("/Student/GetWorkAnswer?rucode=$ru&workInfoGuid=$workGuid".api())
             header("Token", token)
             get()
         }.onError {
@@ -197,9 +197,29 @@ internal object WebDataSource {
                 Result.Error(status, msg)
             }
         }.exec()
+    }
 
+    fun login(phone: String, password: String): Result<User> {
+        return buildOkHttp<Result<User>> {
+            url("/Common/PassLogin".api())
+            val FORM = "application/x-www-form-urlencoded; charset=UTF-8".toMediaType()
+            val body = "password=$password&userCode=$phone".toRequestBody(FORM)
+            post(body)
+        }.onError {
+            return@onError Result.Error(-1, "网络连接失败: $it")
+        }.onSuccess {
+            Log.d("webdata", it)
+            val json = JSONObject(it)
+            val status = json.getInt("status")
 
-
+            return@onSuccess if (status == 200) {
+                val loggedToken = json.getJSONObject("data").getString("token")
+                Result.Success(User(loggedToken))
+            } else {
+                val msg = json.getString("message")
+                Result.Error(status, msg)
+            }
+        }.exec()
     }
 }
 

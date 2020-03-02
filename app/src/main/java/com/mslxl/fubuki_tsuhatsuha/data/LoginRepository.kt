@@ -56,6 +56,14 @@ class LoginRepository(
         return result
     }
 
+    fun login(phone: String, password: String): Result<User> {
+        val result = dataSource.login(phone, password)
+        if (result is Result.Success) {
+            setLoggedInUser(result.data)
+        }
+        return result
+    }
+
     private fun setLoggedInUser(loggedInUser: User) {
         Log.i("login", user.toString())
         userDao.save(loggedInUser)
