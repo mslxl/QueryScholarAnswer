@@ -37,7 +37,7 @@ class AnswerActivity : AppCompatActivity() {
         answerViewModel.requestAnswerResult.observe(this) { it ->
             it.onSuccess { answer ->
                 val data = answer.choice
-                    .toMutableList<Any>()
+                    .toMutableList()
                     .apply {
                         addAll(answer.subAnswer)
                     }

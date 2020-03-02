@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide
 import com.mslxl.fubuki_tsuhatsuha.R
 import java.io.File
 
-class AnswerAdapter(val answer: List<Any>) : RecyclerView.Adapter<AnswerAdapter.ViewHolder>() {
+class AnswerAdapter(val answer: List<String>) : RecyclerView.Adapter<AnswerAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val no: TextView
         val image: ImageView
@@ -77,13 +77,13 @@ class AnswerAdapter(val answer: List<Any>) : RecyclerView.Adapter<AnswerAdapter.
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.no.text = (position + 1).toString()
         val item = answer[position]
-        when (item) {
-            is Char -> {
+        when {
+            item.length <= 4 -> {
                 holder.image.visibility = View.GONE
                 holder.choice.visibility = View.VISIBLE
-                holder.choice.text = item.toString()
+                holder.choice.text = item
             }
-            is String -> {
+            else -> {
                 holder.choice.visibility = View.GONE
                 holder.image.visibility = View.VISIBLE
                 Glide.with(holder.image).load(item).placeholder(R.drawable.loading)

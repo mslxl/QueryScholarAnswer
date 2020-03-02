@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class Answer(
     @PrimaryKey val guid: String,
-    @ColumnInfo val choice: List<Char>,
+    @ColumnInfo val choice: List<String>,
     @ColumnInfo val subAnswer: List<String>
 )

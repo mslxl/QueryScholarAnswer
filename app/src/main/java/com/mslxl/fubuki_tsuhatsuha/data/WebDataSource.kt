@@ -159,7 +159,7 @@ internal object WebDataSource {
 
                 val data = json.getJSONObject("data")
                 val objAnswer = data.getJSONArray("objAnswers")
-                    .toList { getJSONObject(it).getString("answer").first() }
+                    .toList { getJSONObject(it).getString("answer") }
                 val subAnswer = data.getJSONArray("subAnswers").toList { getString(it) }
 
                 return@onSuccess Result.Success(
