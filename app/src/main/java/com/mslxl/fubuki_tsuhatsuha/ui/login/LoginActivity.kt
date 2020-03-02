@@ -152,7 +152,7 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(
             applicationContext,
             "$welcome $token",
-            Toast.LENGTH_LONG
+            Toast.LENGTH_SHORT
         ).show()
         Intent(this, QueryActivity::class.java).apply {
             putExtra("token", model.token)
