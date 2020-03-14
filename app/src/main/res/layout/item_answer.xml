@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/choice"
         android:layout_width="61dp"
-        android:layout_height="17dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="@+id/subanswer"
         app:layout_constraintStart_toEndOf="@+id/no"
         app:layout_constraintTop_toTopOf="parent"
