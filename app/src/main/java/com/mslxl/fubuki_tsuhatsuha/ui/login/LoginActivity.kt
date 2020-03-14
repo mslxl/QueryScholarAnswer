@@ -10,11 +10,11 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.observe
 import com.mslxl.fubuki_tsuhatsuha.R
+import com.mslxl.fubuki_tsuhatsuha.data.model.User
 import com.mslxl.fubuki_tsuhatsuha.ui.about.AboutDialog
 import com.mslxl.fubuki_tsuhatsuha.ui.query.QueryActivity
 import kotlin.system.exitProcess
@@ -74,14 +74,17 @@ class LoginActivity : AppCompatActivity() {
             }
 
         })
-        viewModel.loginResult.observe(this@LoginActivity, Observer {
-            val loginResult = it ?: return@Observer
+        viewModel.loginResult.observe(this@LoginActivity, Observer { it ->
             loading.visibility = View.GONE
-            if (loginResult.error != null) {
-                showLoginFailed(loginResult.error)
-            }
-            if (loginResult.success != null) {
-                updateUiWithUser(loginResult.success)
+
+
+
+            it.onSuccess {
+                user->
+                updateUiWithUser(user)
+            }.onError { status, message ->
+                Toast.makeText(applicationContext, "$status:${message}", Toast.LENGTH_LONG)
+                    .show()
             }
             setResult(Activity.RESULT_OK)
         })
@@ -94,13 +97,29 @@ class LoginActivity : AppCompatActivity() {
 
         })
 
+        viewModel.loginResult.observe(this) { result ->
+            result.onSuccess {
+                updateUiWithUser(it)
+            }.onError { status, message ->
+                Toast.makeText(this,"$status: $message",Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
+        viewModel.allowStart.observe(this) {
+            if (it.allow.not()) {
+                Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
+                exitProcess(-1)
+            }
+        }
+
 
         about.setOnClickListener {
             AboutDialog().show(this)
         }
 
         useCode.setOnClickListener {
-            viewModel.setUseVerifyCode(useCode.isChecked)
+            viewModel.useVerifyCode(useCode.isChecked)
         }
 
         phone.apply {
@@ -137,23 +156,13 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.login(phone.text.toString(), password.text.toString())
             }
         }
-        viewModel.loggedInUser.observe(this) { user ->
-            user?.let {
-                updateUiWithUser(LoggedInUserView(it.token))
-            }
-        }
 
-        viewModel.allowStart.observe(this) {
-            if (it.allow.not()) {
-                Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
-                exitProcess(-1)
-            }
-        }
+        viewModel.updateLocalData()
 
 
     }
 
-    private fun updateUiWithUser(model: LoggedInUserView) {
+    private fun updateUiWithUser(model: User) {
         val welcome = getString(R.string.welcome)
         val token = model.token
         Toast.makeText(
@@ -166,10 +175,6 @@ class LoginActivity : AppCompatActivity() {
         }.let {
             this.startActivity(it)
         }
-    }
-
-    private fun showLoginFailed(@StringRes errorString: Int) {
-        Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
     }
 }
 

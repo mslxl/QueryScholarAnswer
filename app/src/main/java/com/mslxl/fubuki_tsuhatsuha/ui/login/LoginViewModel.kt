@@ -16,8 +16,8 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _loginForm = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginForm
 
-    private val _loginResult = MutableLiveData<LoginResult>()
-    val loginResult: LiveData<LoginResult> = _loginResult
+    private val _loginResult = MutableLiveData<Result<User>>()
+    val loginResult: LiveData<Result<User>> = _loginResult
 
     private val _smsCountdown = MutableLiveData<Long>().apply {
         value = 0
@@ -31,10 +31,12 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _allowStart = MutableLiveData<AllowStartResult>()
     val allowStart: LiveData<AllowStartResult> = _allowStart
 
-    val loggedInUser: LiveData<User?> = loginRepository.readLoggedInUserInDatabase()
 
     private val _useVerifyCode = MutableLiveData<Boolean>()
     var useVerifyCode: LiveData<Boolean> = _useVerifyCode
+
+    private val _savedPhone = MutableLiveData<String>()
+    val savedPhone:LiveData<String> = _savedPhone
 
 
     fun isAllowStart() {
@@ -44,7 +46,17 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         }
     }
 
-    fun setUseVerifyCode(use: Boolean) {
+    fun updateLocalData() {
+        loginRepository.getSavedPhone()?.let{
+
+        }
+
+        loginRepository.getLoggedInUser()?.let {
+            _loginResult.value = Result.Success(it)
+        }
+    }
+
+    fun useVerifyCode(use: Boolean) {
         _useVerifyCode.value = use
     }
 
@@ -72,27 +84,33 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     fun login(phone: String, verifyCode: String) {
         // can be launched in a separate asynchronous job
 
-            thread(name = "login") {
-                val result = if (!useVerifyCode.value!!) {
-                    loginRepository.login(phone, verifyCode)
+        thread(name = "login") {
+            val result = if (!useVerifyCode.value!!) {
+                loginRepository.login(phone, verifyCode)
+            } else {
+                if (smsResult.value == null) {
+                    Result.Error(status = -1, message = "无 SMS 信息")
                 } else {
-                    smsResult.value?.let {
-                        return@let if (it is Result.Success) {
-                            loginRepository.login(phone, it.data, verifyCode)
-                        } else {
-                            Result.Error(-1, "")
-                        }
+                    if (smsResult.value is Result.Success) {
+
+                        // 此处编译器有 bug
+                        // 直接访问会 Unresolved reference 或被判定为多条语句
+                        val v:Result<String>? = smsResult.value
+                        val v1 = v!!
+                        val v2 = v1 as Result.Success
+                        val v3 = v2.data
+
+
+                        loginRepository.login(phone, v3, verifyCode)
+
+                    } else {
+                        Result.Error(status = -1, message = "SMS 信息错误")
                     }
                 }
-
-                if (result is Result.Success) {
-                    _loginResult.postValue(LoginResult(success = LoggedInUserView(result.data.token)))
-                } else {
-                    _loginResult.postValue(LoginResult(error = R.string.login_failed))
-                }
             }
+            _loginResult.postValue(result)
 
-
+        }
     }
 
     fun loginDataChanged(username: String) {
@@ -108,6 +126,5 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private fun isPhoneValid(phone: String): Boolean {
         return phone.length == 11 && phone.toLongOrNull() != null
     }
-
 
 }

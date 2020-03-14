@@ -1,8 +1,7 @@
 package com.mslxl.fubuki_tsuhatsuha.data
 
-import android.util.Log
+
 import androidx.lifecycle.LiveData
-import com.mslxl.fubuki_tsuhatsuha.data.db.UserDatabase
 import com.mslxl.fubuki_tsuhatsuha.data.model.User
 
 /**
@@ -11,29 +10,16 @@ import com.mslxl.fubuki_tsuhatsuha.data.model.User
  */
 
 class LoginRepository(
-    private val userDatabase: UserDatabase
+    private val localDataSource: LocalDataSource
 ) {
     private val dataSource = WebDataSource
-    private val userDao by lazy {
-        userDatabase.userDao()
-    }
-
-    // in-memory cache of the loggedInUser object
-    var user: LiveData<User?>
-        private set
 
     init {
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
-        user = userDao.loadLiveData(1)
-        Log.v("load user", user.value?.token ?: "No login user")
+
     }
 
-    fun logout() {
-        user.value?.let {
-            userDao.delete(it)
-        }
-    }
 
     fun isAllowStart() = SoftwareControl.allowStart()
 
@@ -44,8 +30,16 @@ class LoginRepository(
     }
 
 
-    fun readLoggedInUserInDatabase(): LiveData<User?> {
-        return userDao.loadLiveData(1)
+    fun getLoggedInUser():User? {
+        return localDataSource.token?.let { User(it) }
+    }
+
+    fun getSavedPhone():String? {
+        return localDataSource.phone
+    }
+
+    fun savePhone(string: String){
+        localDataSource.phone = string
     }
 
     fun login(phone: String, token: String, verifyCode: String): Result<User> {
@@ -65,7 +59,6 @@ class LoginRepository(
     }
 
     private fun setLoggedInUser(loggedInUser: User) {
-        Log.i("login", user.toString())
-        userDao.save(loggedInUser)
+       localDataSource.token = loggedInUser.token
     }
 }
