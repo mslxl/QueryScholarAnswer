@@ -9,17 +9,19 @@ class LocalDataSource(private val preferences: SharedPreferences) {
         const val PASSWORD = "pwd"
         const val SAVE_PASSWORD = "savePwd"
         const val USE_VERIFY_CODE = "verifyCode"
+        const val SECOND_PASSWORD = "2ndPassword"
+
     }
 
-    var token:String? = preferences.getString(TOKEN, null)
-       set(value) {
-           preferences.edit().let {
-               it.putString(TOKEN, value)
-               it.commit()
-           }
-           field = value
-       }
-    var phone:String? = preferences.getString(PHONE, null)
+    var token: String? = preferences.getString(TOKEN, null)
+        set(value) {
+            preferences.edit().let {
+                it.putString(TOKEN, value)
+                it.commit()
+            }
+            field = value
+        }
+    var phone: String? = preferences.getString(PHONE, null)
         set(value) {
             preferences.edit().let {
                 it.putString(PHONE, value)
@@ -27,7 +29,7 @@ class LocalDataSource(private val preferences: SharedPreferences) {
             }
             field = value
         }
-    var password:String? = preferences.getString(PASSWORD,null)
+    var password: String? = preferences.getString(PASSWORD, null)
         set(value) {
             preferences.edit().let {
                 it.putString(PASSWORD, value)
@@ -35,7 +37,7 @@ class LocalDataSource(private val preferences: SharedPreferences) {
             }
             field = value
         }
-    var savePwd:Boolean = preferences.getBoolean(SAVE_PASSWORD,false)
+    var savePwd: Boolean = preferences.getBoolean(SAVE_PASSWORD, false)
         set(value) {
             preferences.edit().let {
                 it.putBoolean(SAVE_PASSWORD, value)
@@ -43,10 +45,19 @@ class LocalDataSource(private val preferences: SharedPreferences) {
             }
             field = value
         }
-    var useVerifyCode:Boolean = preferences.getBoolean(USE_VERIFY_CODE,false)
+    var useVerifyCode: Boolean = preferences.getBoolean(USE_VERIFY_CODE, false)
         set(value) {
             preferences.edit().let {
                 it.putBoolean(USE_VERIFY_CODE, value)
+                it.commit()
+            }
+            field = value
+        }
+
+    var secondPassword: String? = preferences.getString(SECOND_PASSWORD, null)
+        set(value) {
+            preferences.edit().let {
+                it.putString(SECOND_PASSWORD, value)
                 it.commit()
             }
             field = value

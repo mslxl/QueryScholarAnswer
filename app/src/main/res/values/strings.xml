@@ -9,6 +9,7 @@
     <string name="invalid_username">不是合法的手机号</string>
     <string name="invalid_password">验证码 > 4 位</string>
     <string name="login_failed">"登录失败"</string>
+    <string name="label_input_second_pwd">请输入二次验证密码：\n若二次验证密码未知，可发送申请码至 i@mslxl.com 申请，申请结果将使用电子邮件发回</string>
     <string name="action_get_code">获取验证码</string>
     <string name="action_about">关于</string>
     <string name="confirm">确定</string>

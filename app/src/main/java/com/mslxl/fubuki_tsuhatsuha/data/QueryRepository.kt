@@ -3,9 +3,14 @@ package com.mslxl.fubuki_tsuhatsuha.data
 import com.mslxl.fubuki_tsuhatsuha.data.model.UserInfo
 import com.mslxl.fubuki_tsuhatsuha.data.model.WorkList
 
-class QueryRepository {
+class QueryRepository(private val localDataSource: LocalDataSource) {
     private val dataSource = WebDataSource
 
+    var secondPassword
+        set(value) {
+            localDataSource.secondPassword
+        }
+        get() = localDataSource.secondPassword
 
     fun getUserInfo(token: String): Result<UserInfo> {
         return dataSource.getUserInfo(token)

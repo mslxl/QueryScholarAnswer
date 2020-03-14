@@ -22,6 +22,14 @@ class QueryViewModel(
     private val _requestWorkListResult = MutableLiveData<Result<WorkList>>()
     val requestWorkListResult: LiveData<Result<WorkList>> = _requestWorkListResult
 
+    var allowUse = false
+
+    var secondPassword:String?
+        set(value) {
+            repository.secondPassword = value
+        }
+        get() = repository.secondPassword
+
     init {
         Log.d("webdata", token)
     }
