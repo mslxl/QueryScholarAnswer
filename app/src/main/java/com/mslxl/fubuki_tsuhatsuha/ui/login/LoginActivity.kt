@@ -21,7 +21,7 @@ import kotlin.system.exitProcess
 
 class LoginActivity : AppCompatActivity() {
 
-    private val loginViewModel: LoginViewModel by viewModels(
+    private val viewModel: LoginViewModel by viewModels(
         factoryProducer = { LoginViewModelFactory(this.applicationContext) }
     )
 
@@ -35,26 +35,14 @@ class LoginActivity : AppCompatActivity() {
         val login = findViewById<Button>(R.id.login)
         val loading = findViewById<ProgressBar>(R.id.loading)
         val sms = findViewById<Button>(R.id.sendSMS)
-        val usePwd = findViewById<CheckBox>(R.id.use_password)
+        val useCode = findViewById<Switch>(R.id.use_code)
         val about = findViewById<Button>(R.id.about)
-        about.setOnClickListener {
-            AboutDialog().show(this)
-        }
 
-        usePwd.setOnClickListener {
-            loginViewModel.usePasswordLogin = usePwd.isChecked
-            if (usePwd.isChecked) {
-                sms.visibility = View.INVISIBLE
-                password.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
-            } else {
-                sms.visibility = View.VISIBLE
-                password.inputType = InputType.TYPE_NUMBER_VARIATION_NORMAL
-            }
-        }
 
-        loginViewModel.smsCountdownState.observe(this@LoginActivity, Observer {
+
+        viewModel.smsCountdownState.observe(this@LoginActivity, Observer {
             if (it == 0L) {
-                sms.isEnabled = loginViewModel.loginFormState.value?.isPhoneValid ?: false
+                sms.isEnabled = viewModel.loginFormState.value?.isPhoneValid ?: false
                 sms.text = getString(R.string.action_get_code)
             } else {
                 sms.isEnabled = false
@@ -62,13 +50,23 @@ class LoginActivity : AppCompatActivity() {
             }
         })
 
+        viewModel.useVerifyCode.observe(this@LoginActivity, Observer {
+            if (!it) {
+                sms.visibility = View.GONE
+                password.inputType = InputType.TYPE_TEXT_VARIATION_PASSWORD
+                password.hint = getString(R.string.prompt_password)
+            } else {
+                sms.visibility = View.VISIBLE
+                password.inputType = InputType.TYPE_NUMBER_FLAG_SIGNED
+                password.hint = getString(R.string.prompt_verify_code)
+            }
+        })
 
-        loginViewModel.loginFormState.observe(this@LoginActivity, Observer {
+
+        viewModel.loginFormState.observe(this@LoginActivity, Observer {
             val loginState = it ?: return@Observer
-
-
             sms.isEnabled =
-                loginViewModel.smsCountdownState.value == 0L && loginViewModel.loginFormState.value?.isPhoneValid ?: false
+                viewModel.smsCountdownState.value == 0L && viewModel.loginFormState.value?.isPhoneValid ?: false
             // disable login button unless both username / password is valid
             login.isEnabled = loginState.isDataValid
             if (loginState.usernameError != null) {
@@ -76,7 +74,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
         })
-        loginViewModel.loginResult.observe(this@LoginActivity, Observer {
+        viewModel.loginResult.observe(this@LoginActivity, Observer {
             val loginResult = it ?: return@Observer
             loading.visibility = View.GONE
             if (loginResult.error != null) {
@@ -88,7 +86,7 @@ class LoginActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK)
         })
 
-        loginViewModel.smsResult.observe(this, Observer {
+        viewModel.smsResult.observe(this, Observer {
             it.onError { status, message ->
                 Toast.makeText(applicationContext, "$status:${message}", Toast.LENGTH_LONG)
                     .show()
@@ -96,20 +94,29 @@ class LoginActivity : AppCompatActivity() {
 
         })
 
+
+        about.setOnClickListener {
+            AboutDialog().show(this)
+        }
+
+        useCode.setOnClickListener {
+            viewModel.setUseVerifyCode(useCode.isChecked)
+        }
+
         phone.apply {
             afterTextChanged {
-                loginViewModel.loginDataChanged(
+                viewModel.loginDataChanged(
                     phone.text.toString()
                 )
             }
             sms.setOnClickListener {
-                loginViewModel.sendSMS(phone.text.toString())
+                viewModel.sendSMS(phone.text.toString())
             }
         }
 
         password.apply {
             afterTextChanged {
-                loginViewModel.loginDataChanged(
+                viewModel.loginDataChanged(
                     phone.text.toString()
                 )
             }
@@ -117,7 +124,7 @@ class LoginActivity : AppCompatActivity() {
             setOnEditorActionListener { _, actionId, _ ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE ->
-                        loginViewModel.login(
+                        viewModel.login(
                             phone.text.toString(),
                             password.text.toString()
                         )
@@ -127,23 +134,23 @@ class LoginActivity : AppCompatActivity() {
 
             login.setOnClickListener {
                 loading.visibility = View.VISIBLE
-                loginViewModel.login(phone.text.toString(), password.text.toString())
+                viewModel.login(phone.text.toString(), password.text.toString())
             }
         }
-        loginViewModel.loggedInUser.observe(this) { user ->
+        viewModel.loggedInUser.observe(this) { user ->
             user?.let {
                 updateUiWithUser(LoggedInUserView(it.token))
             }
         }
 
-        loginViewModel.allowStart.observe(this) {
+        viewModel.allowStart.observe(this) {
             if (it.allow.not()) {
                 Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
                 exitProcess(-1)
             }
         }
 
-        loginViewModel.isAllowStart()
+
     }
 
     private fun updateUiWithUser(model: LoggedInUserView) {

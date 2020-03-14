@@ -33,7 +33,9 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     val loggedInUser: LiveData<User?> = loginRepository.readLoggedInUserInDatabase()
 
-    var usePasswordLogin: Boolean = false
+    private val _useVerifyCode = MutableLiveData<Boolean>()
+    var useVerifyCode: LiveData<Boolean> = _useVerifyCode
+
 
     fun isAllowStart() {
         thread(name = "allow start") {
@@ -42,9 +44,11 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         }
     }
 
+    fun setUseVerifyCode(use: Boolean) {
+        _useVerifyCode.value = use
+    }
+
     fun sendSMS(phone: String) {
-
-
         thread(name = "sms") {
             // Countdown to avoid send sms duplicated
             Looper.prepare()
@@ -69,7 +73,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         // can be launched in a separate asynchronous job
 
             thread(name = "login") {
-                val result = if (usePasswordLogin) {
+                val result = if (!useVerifyCode.value!!) {
                     loginRepository.login(phone, verifyCode)
                 } else {
                     smsResult.value?.let {
