@@ -40,10 +40,10 @@ class LoginActivity : AppCompatActivity() {
         val about = findViewById<Button>(R.id.about)
 
         savePassword.isChecked = viewModel.isSavePasswordEnable
+        useCode.isChecked = viewModel.useVerifyCode.value!!
         phone.setText(viewModel.savedPhone)
 
-
-        if (savePassword.isChecked && viewModel.savedPassword.isNotBlank()) {
+        if (!useCode.isChecked && savePassword.isChecked && viewModel.savedPassword.isNotBlank()) {
             password.setText(viewModel.savedPassword)
         }
 
@@ -67,6 +67,7 @@ class LoginActivity : AppCompatActivity() {
                 password.inputType = InputType.TYPE_NUMBER_FLAG_SIGNED
                 password.hint = getString(R.string.prompt_verify_code)
             }
+            savePassword.visibility = if(it) View.INVISIBLE else View.VISIBLE
         })
 
 
@@ -97,10 +98,13 @@ class LoginActivity : AppCompatActivity() {
 
             result.onSuccess {
 
+
+                // Save
                 viewModel.savePhone(phone.text.toString())
                 if (savePassword.isChecked) {
                     viewModel.savePassword(password.text.toString())
                 }
+
 
                 updateUiWithUser(it)
             }.onError { status, message ->
@@ -124,6 +128,7 @@ class LoginActivity : AppCompatActivity() {
 
         useCode.setOnClickListener {
             viewModel.useVerifyCode(useCode.isChecked)
+            password.setText("")
         }
 
         phone.apply {

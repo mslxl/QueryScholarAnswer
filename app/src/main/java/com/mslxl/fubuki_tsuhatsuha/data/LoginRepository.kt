@@ -37,7 +37,11 @@ class LoginRepository(
         }
         get() = localDataSource.password
 
-
+    var useVerifyCode:Boolean
+        set(value) {
+            localDataSource.useVerifyCode = value
+        }
+        get() = localDataSource.useVerifyCode
 
     fun isAllowStart() = SoftwareControl.allowStart()
 

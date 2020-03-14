@@ -32,13 +32,18 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     val allowStart: LiveData<AllowStartResult> = _allowStart
 
 
-    private val _useVerifyCode = MutableLiveData<Boolean>()
-    var useVerifyCode: LiveData<Boolean> = _useVerifyCode
+    private val _useVerifyCode = MutableLiveData(loginRepository.useVerifyCode)
+    var useVerifyCode: LiveData<Boolean> = _useVerifyCode.apply {
+        observeForever {
+            loginRepository.useVerifyCode = it
+        }
+    }
 
 
     val savedPhone = loginRepository.savedPhone?:""
 
     val savedPassword = loginRepository.savedPassword?:""
+
 
     var isSavePasswordEnable:Boolean
         set(value) {
