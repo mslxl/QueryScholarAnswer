@@ -74,20 +74,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
         })
-        viewModel.loginResult.observe(this@LoginActivity, Observer { it ->
-            loading.visibility = View.GONE
 
-
-
-            it.onSuccess {
-                user->
-                updateUiWithUser(user)
-            }.onError { status, message ->
-                Toast.makeText(applicationContext, "$status:${message}", Toast.LENGTH_LONG)
-                    .show()
-            }
-            setResult(Activity.RESULT_OK)
-        })
 
         viewModel.smsResult.observe(this, Observer {
             it.onError { status, message ->
@@ -98,12 +85,13 @@ class LoginActivity : AppCompatActivity() {
         })
 
         viewModel.loginResult.observe(this) { result ->
+            loading.visibility = View.GONE
             result.onSuccess {
                 updateUiWithUser(it)
             }.onError { status, message ->
                 Toast.makeText(this,"$status: $message",Toast.LENGTH_SHORT).show()
             }
-
+            setResult(Activity.RESULT_OK)
         }
 
         viewModel.allowStart.observe(this) {
@@ -111,6 +99,10 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
                 exitProcess(-1)
             }
+        }
+
+        viewModel.savedPhone.observe(this){
+            phone.setText(it)
         }
 
 
