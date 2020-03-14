@@ -8,7 +8,7 @@ class QueryRepository(private val localDataSource: LocalDataSource) {
 
     var secondPassword
         set(value) {
-            localDataSource.secondPassword
+            localDataSource.secondPassword = value
         }
         get() = localDataSource.secondPassword
 

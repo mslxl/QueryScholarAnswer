@@ -1,7 +1,6 @@
 package com.mslxl.fubuki_tsuhatsuha.data
 
 
-import androidx.lifecycle.LiveData
 import com.mslxl.fubuki_tsuhatsuha.data.model.User
 
 /**
@@ -42,8 +41,6 @@ class LoginRepository(
             localDataSource.useVerifyCode = value
         }
         get() = localDataSource.useVerifyCode
-
-    fun isAllowStart() = SoftwareControl.allowStart()
 
 
     // Return sms token

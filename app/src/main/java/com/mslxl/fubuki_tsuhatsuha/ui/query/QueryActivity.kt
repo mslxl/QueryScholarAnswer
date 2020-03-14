@@ -1,6 +1,9 @@
 package com.mslxl.fubuki_tsuhatsuha.ui.query
 
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -18,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mslxl.fubuki_tsuhatsuha.R
 import com.mslxl.fubuki_tsuhatsuha.data.model.WorkItem
+import com.mslxl.fubuki_tsuhatsuha.data.util.checkAllowStart
 import com.mslxl.fubuki_tsuhatsuha.data.util.md5
 import com.mslxl.fubuki_tsuhatsuha.ui.about.AboutDialog
 import com.mslxl.fubuki_tsuhatsuha.ui.answer.AnswerActivity
@@ -98,17 +102,21 @@ class QueryActivity : AppCompatActivity(), WorkAdapter.OnItemClick {
                 if(queryViewModel.secondPassword != null && queryViewModel.secondPassword in arrayOf(classId.md5(),nameID.md5())){
                     // 验证通过
                     queryViewModel.allowUse = true
+
                     return@observe
                 }
                 showPasswordDialog(studentInfo){ pwd->
                     val result = pwd in arrayOf(classId.md5(),nameID.md5())
-                    queryViewModel.allowUse = result
+                    if (result) {
+                        queryViewModel.allowUse = result
+                        queryViewModel.secondPassword = pwd
+                    }
                     return@showPasswordDialog result
                 }
 
             }
         }
-
+        checkAllowStart()
 
         queryViewModel.requestUserInfo()
     }

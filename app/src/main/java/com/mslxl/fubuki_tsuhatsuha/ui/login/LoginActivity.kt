@@ -15,9 +15,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.observe
 import com.mslxl.fubuki_tsuhatsuha.R
 import com.mslxl.fubuki_tsuhatsuha.data.model.User
+import com.mslxl.fubuki_tsuhatsuha.data.util.checkAllowStart
 import com.mslxl.fubuki_tsuhatsuha.ui.about.AboutDialog
 import com.mslxl.fubuki_tsuhatsuha.ui.query.QueryActivity
-import kotlin.system.exitProcess
 
 class LoginActivity : AppCompatActivity() {
 
@@ -114,13 +114,6 @@ class LoginActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK)
         }
 
-        viewModel.allowStart.observe(this) {
-            if (it.allow.not()) {
-                Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
-                exitProcess(-1)
-            }
-        }
-
 
         about.setOnClickListener {
             AboutDialog().show(this)
@@ -171,7 +164,7 @@ class LoginActivity : AppCompatActivity() {
 
 
         viewModel.updateLocalData()
-
+        checkAllowStart()
 
     }
 

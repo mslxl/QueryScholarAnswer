@@ -28,9 +28,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _smsResult = MutableLiveData<Result<String>>()
     val smsResult: LiveData<Result<String>> = _smsResult
 
-    private val _allowStart = MutableLiveData<AllowStartResult>()
-    val allowStart: LiveData<AllowStartResult> = _allowStart
-
 
     private val _useVerifyCode = MutableLiveData(loginRepository.useVerifyCode)
     var useVerifyCode: LiveData<Boolean> = _useVerifyCode.apply {
@@ -51,12 +48,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         }
         get() = loginRepository.isSavePasswordEnable
 
-    fun isAllowStart() {
-        thread(name = "allow start") {
-            val result = loginRepository.isAllowStart()
-            _allowStart.postValue(result)
-        }
-    }
 
     fun updateLocalData() {
         loginRepository.getLoggedInUser()?.let {
