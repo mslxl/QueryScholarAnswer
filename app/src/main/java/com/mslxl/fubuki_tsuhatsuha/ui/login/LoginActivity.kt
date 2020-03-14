@@ -40,12 +40,11 @@ class LoginActivity : AppCompatActivity() {
         val about = findViewById<Button>(R.id.about)
 
         savePassword.isChecked = viewModel.isSavePasswordEnable
+        phone.setText(viewModel.savedPhone)
 
 
-        if(savePassword.isChecked){
-            viewModel.savedPassword.observe(this){
-                password.setText(it)
-            }
+        if (savePassword.isChecked && viewModel.savedPassword.isNotBlank()) {
+            password.setText(viewModel.savedPassword)
         }
 
         viewModel.smsCountdownState.observe(this@LoginActivity, Observer {
@@ -99,13 +98,13 @@ class LoginActivity : AppCompatActivity() {
             result.onSuccess {
 
                 viewModel.savePhone(phone.text.toString())
-                if(savePassword.isChecked){
+                if (savePassword.isChecked) {
                     viewModel.savePassword(password.text.toString())
                 }
 
                 updateUiWithUser(it)
             }.onError { status, message ->
-                Toast.makeText(this,"$status: $message",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "$status: $message", Toast.LENGTH_SHORT).show()
             }
 
             setResult(Activity.RESULT_OK)
@@ -116,10 +115,6 @@ class LoginActivity : AppCompatActivity() {
                 Toast.makeText(this.applicationContext, it.msg, Toast.LENGTH_LONG).show()
                 exitProcess(-1)
             }
-        }
-
-        viewModel.savedPhone.observe(this){
-            phone.setText(it)
         }
 
 

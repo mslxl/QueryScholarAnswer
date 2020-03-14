@@ -25,6 +25,20 @@ class LoginRepository(
         }
         get() = localDataSource.savePwd
 
+    var savedPhone:String?
+        set(value) {
+            localDataSource.phone = value
+        }
+        get() = localDataSource.phone
+
+    var savedPassword:String?
+        set(value) {
+            localDataSource.password = value
+        }
+        get() = localDataSource.password
+
+
+
     fun isAllowStart() = SoftwareControl.allowStart()
 
 
@@ -37,21 +51,6 @@ class LoginRepository(
     fun getLoggedInUser():User? {
         return localDataSource.token?.let { User(it) }
     }
-
-    fun getSavedPhone():String? = localDataSource.phone
-
-
-    fun savePhone(string: String){
-        localDataSource.phone = string
-    }
-
-
-    fun getSavedPassword():String? = localDataSource.password
-
-    fun savePassword(pwd:String){
-        localDataSource.password = pwd
-    }
-
 
 
     fun login(phone: String, token: String, verifyCode: String): Result<User> {

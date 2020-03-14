@@ -35,11 +35,10 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _useVerifyCode = MutableLiveData<Boolean>()
     var useVerifyCode: LiveData<Boolean> = _useVerifyCode
 
-    private val _savedPhone = MutableLiveData<String>()
-    val savedPhone:LiveData<String> = _savedPhone
 
-    private val _savedPassword = MutableLiveData<String>()
-    val savedPassword:LiveData<String> = _savedPassword
+    val savedPhone = loginRepository.savedPhone?:""
+
+    val savedPassword = loginRepository.savedPassword?:""
 
     var isSavePasswordEnable:Boolean
         set(value) {
@@ -55,12 +54,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     }
 
     fun updateLocalData() {
-        loginRepository.getSavedPhone()?.let{
-            _savedPhone.value = it
-        }
-        loginRepository.getSavedPassword()?.let{
-            _savedPassword.value = it
-        }
         loginRepository.getLoggedInUser()?.let {
             _loginResult.value = Result.Success(it)
         }
@@ -125,10 +118,10 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     }
 
     fun savePhone(phone: String){
-        loginRepository.savePhone(phone)
+        loginRepository.savedPhone = phone
     }
     fun savePassword(pwd:String){
-        loginRepository.savePassword(pwd)
+        loginRepository.savedPassword = pwd
     }
 
 
