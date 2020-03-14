@@ -19,7 +19,11 @@ class LoginRepository(
         // @see https://developer.android.com/training/articles/keystore
 
     }
-
+    var isSavePasswordEnable:Boolean
+        set(value) {
+            localDataSource.savePwd = value
+        }
+        get() = localDataSource.savePwd
 
     fun isAllowStart() = SoftwareControl.allowStart()
 
@@ -34,13 +38,21 @@ class LoginRepository(
         return localDataSource.token?.let { User(it) }
     }
 
-    fun getSavedPhone():String? {
-        return localDataSource.phone
-    }
+    fun getSavedPhone():String? = localDataSource.phone
+
 
     fun savePhone(string: String){
         localDataSource.phone = string
     }
+
+
+    fun getSavedPassword():String? = localDataSource.password
+
+    fun savePassword(pwd:String){
+        localDataSource.password = pwd
+    }
+
+
 
     fun login(phone: String, token: String, verifyCode: String): Result<User> {
         val result = dataSource.login(phone, token, verifyCode)

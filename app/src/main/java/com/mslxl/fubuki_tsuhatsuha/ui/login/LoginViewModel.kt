@@ -38,6 +38,14 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _savedPhone = MutableLiveData<String>()
     val savedPhone:LiveData<String> = _savedPhone
 
+    private val _savedPassword = MutableLiveData<String>()
+    val savedPassword:LiveData<String> = _savedPassword
+
+    var isSavePasswordEnable:Boolean
+        set(value) {
+            loginRepository.isSavePasswordEnable = value
+        }
+        get() = loginRepository.isSavePasswordEnable
 
     fun isAllowStart() {
         thread(name = "allow start") {
@@ -48,9 +56,11 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     fun updateLocalData() {
         loginRepository.getSavedPhone()?.let{
-
+            _savedPhone.value = it
         }
-
+        loginRepository.getSavedPassword()?.let{
+            _savedPassword.value = it
+        }
         loginRepository.getLoggedInUser()?.let {
             _loginResult.value = Result.Success(it)
         }
@@ -82,8 +92,8 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     }
 
     fun login(phone: String, verifyCode: String) {
-        // can be launched in a separate asynchronous job
 
+        // can be launched in a separate asynchronous job
         thread(name = "login") {
             val result = if (!useVerifyCode.value!!) {
                 loginRepository.login(phone, verifyCode)
@@ -95,6 +105,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
                         // 此处编译器有 bug
                         // 直接访问会 Unresolved reference 或被判定为多条语句
+                        // val v3 = (smsResult.value!! as Result.Success).data
                         val v:Result<String>? = smsResult.value
                         val v1 = v!!
                         val v2 = v1 as Result.Success
@@ -108,10 +119,18 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
                     }
                 }
             }
-            _loginResult.postValue(result)
 
+            _loginResult.postValue(result)
         }
     }
+
+    fun savePhone(phone: String){
+        loginRepository.savePhone(phone)
+    }
+    fun savePassword(pwd:String){
+        loginRepository.savePassword(pwd)
+    }
+
 
     fun loginDataChanged(username: String) {
         if (!isPhoneValid(username)) {

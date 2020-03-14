@@ -6,6 +6,8 @@ class LocalDataSource(private val preferences: SharedPreferences) {
     private companion object {
         const val TOKEN = "token"
         const val PHONE = "phone"
+        const val PASSWORD = "pwd"
+        const val SAVE_PASSWORD = "savePwd"
     }
 
     var token:String? = preferences.getString(TOKEN, null)
@@ -24,7 +26,20 @@ class LocalDataSource(private val preferences: SharedPreferences) {
             }
             field = value
         }
-
-
-
+    var password:String? = preferences.getString(PASSWORD,null)
+        set(value) {
+            preferences.edit().let {
+                it.putString(PASSWORD, value)
+                it.commit()
+            }
+            field = value
+        }
+    var savePwd:Boolean = preferences.getBoolean(SAVE_PASSWORD,false)
+        set(value) {
+            preferences.edit().let {
+                it.putBoolean(SAVE_PASSWORD, value)
+                it.commit()
+            }
+            field = value
+        }
 }

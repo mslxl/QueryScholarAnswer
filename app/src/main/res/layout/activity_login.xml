@@ -95,7 +95,7 @@
         app:layout_constraintTop_toBottomOf="@+id/password" />
 
     <Switch
-        android:id="@+id/switch2"
+        android:id="@+id/save_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/switch_remember_password"

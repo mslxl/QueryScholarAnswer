@@ -36,9 +36,17 @@ class LoginActivity : AppCompatActivity() {
         val loading = findViewById<ProgressBar>(R.id.loading)
         val sms = findViewById<Button>(R.id.sendSMS)
         val useCode = findViewById<Switch>(R.id.use_code)
+        val savePassword = findViewById<Switch>(R.id.save_password)
         val about = findViewById<Button>(R.id.about)
 
+        savePassword.isChecked = viewModel.isSavePasswordEnable
 
+
+        if(savePassword.isChecked){
+            viewModel.savedPassword.observe(this){
+                password.setText(it)
+            }
+        }
 
         viewModel.smsCountdownState.observe(this@LoginActivity, Observer {
             if (it == 0L) {
@@ -84,13 +92,22 @@ class LoginActivity : AppCompatActivity() {
 
         })
 
+
         viewModel.loginResult.observe(this) { result ->
             loading.visibility = View.GONE
+
             result.onSuccess {
+
+                viewModel.savePhone(phone.text.toString())
+                if(savePassword.isChecked){
+                    viewModel.savePassword(password.text.toString())
+                }
+
                 updateUiWithUser(it)
             }.onError { status, message ->
                 Toast.makeText(this,"$status: $message",Toast.LENGTH_SHORT).show()
             }
+
             setResult(Activity.RESULT_OK)
         }
 
@@ -148,6 +165,10 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.login(phone.text.toString(), password.text.toString())
             }
         }
+        savePassword.setOnClickListener {
+            viewModel.isSavePasswordEnable = savePassword.isChecked
+        }
+
 
         viewModel.updateLocalData()
 
